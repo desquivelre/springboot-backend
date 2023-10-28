@@ -1,4 +1,4 @@
-package com.template.springbootbackend.controller;
+package com.template.springbootbackend.infraestructure.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
