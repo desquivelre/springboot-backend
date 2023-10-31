@@ -1,11 +1,10 @@
 spring:
     datasource:
-        url: jdbc:postgresql://localhost/db_springboot_backend_template
+        url: jdbc:postgresql://localhost/db_springboot_backend_template?useSSL=false
         username: postgres
         password: deg159753
         driver-class-name: org.postgresql.Driver
     jpa:
-        database-platform: org.hibernate.dialect.PostgreSQLDialect
         show-sql: true
         hibernate:
             ddl-auto: create-drop
