@@ -1,6 +1,9 @@
-package com.template.springbootbackend.infraestructure.entities;
+package com.template.springbootbackend.models.entities;
 
+import java.time.LocalDate;
 import java.util.Date;
+
+import org.springframework.cglib.core.Local;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,11 +41,14 @@ public class Client {
 
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date createdAt;
+    private LocalDate createdAt;
 
     @Column(name = "modificated_at", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date modificatedAt;
+    private LocalDate modificatedAt;
+
+    public Client() {
+    }
 
     public Client(int dni, String firstNames, String lastNames, String email, int cellphoneNumber) {
         this.dni = dni;
@@ -50,7 +56,8 @@ public class Client {
         this.lastNames = lastNames;
         this.email = email;
         this.cellphoneNumber = cellphoneNumber;
-
+        this.createdAt = LocalDate.now();
+        this.modificatedAt = LocalDate.now();
     }
 
     public Long getId() {
@@ -97,15 +104,15 @@ public class Client {
         this.email = email;
     }
 
-    public Date getCreatedAt() {
+    public LocalDate getCreatedAt() {
         return createdAt;
     }
 
-    public Date getModificatedAt() {
+    public LocalDate getModificatedAt() {
         return modificatedAt;
     }
 
-    public void setModificatedAt(Date modificatedAt) {
+    public void setModificatedAt(LocalDate modificatedAt) {
         this.modificatedAt = modificatedAt;
     }
 
