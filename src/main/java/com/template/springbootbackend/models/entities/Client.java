@@ -1,9 +1,6 @@
 package com.template.springbootbackend.models.entities;
 
 import java.time.LocalDate;
-import java.util.Date;
-
-import org.springframework.cglib.core.Local;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
