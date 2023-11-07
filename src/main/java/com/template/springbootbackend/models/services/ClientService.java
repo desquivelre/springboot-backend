@@ -1,7 +1,6 @@
 package com.template.springbootbackend.models.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.template.springbootbackend.models.entities.Client;
 

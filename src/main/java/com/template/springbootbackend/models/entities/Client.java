@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "clients")
@@ -20,7 +19,6 @@ public class Client {
     private Long id;
 
     @Column(name = "dni", nullable = false)
-    @Size(max = 99999999, min = 00000001, message = "The value of a class attribute is outside of stablished range")
     private int dni;
 
     @Column(name = "first_names", nullable = false)
@@ -29,11 +27,10 @@ public class Client {
     @Column(name = "last_names", nullable = false)
     private String lastNames;
 
-    @Column(name = "email", nullable = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "cellphone_number", nullable = false)
-    @Size(max = 999999999, min = 000000001, message = "The value of a class attribute is outside of stablished range")
     private int cellphoneNumber;
 
     @Column(name = "created_at", nullable = false)
