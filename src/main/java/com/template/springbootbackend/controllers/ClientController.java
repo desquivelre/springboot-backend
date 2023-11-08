@@ -1,14 +1,19 @@
 package com.template.springbootbackend.controllers;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.template.springbootbackend.models.entities.Client;
 import com.template.springbootbackend.models.services.ClientService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -55,9 +62,19 @@ public class ClientController {
     }
 
     @PostMapping("/clients")
-    public ResponseEntity<?> save(@RequestBody Client client) {
+    public ResponseEntity<?> save(@Valid @RequestBody Client client, BindingResult result) {
         Client clientNew = null;
         Map<String, Object> response = new HashMap<>();
+
+        if (result.hasErrors()) {
+            List<String> errors = result.getFieldErrors()
+                    .stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+
+            response.put("message", errors);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+        }
 
         try {
             clientNew = clientService.save(client);
@@ -72,19 +89,24 @@ public class ClientController {
     }
 
     @PutMapping("/clients/{id}")
-    public ResponseEntity<?> update(@RequestBody Client client, @PathVariable Long id) {
+    public ResponseEntity<?> update(@Valid @RequestBody Client client, @PathVariable Long id, BindingResult result) {
 
         Map<String, Object> response = new HashMap<>();
         Client clientUpdated = null;
         Client clientSaved = clientService.findById(id);
 
-        if (clientSaved == null) {
-            response.put("message", "The client id ".concat(id.toString()).concat(" doesn't exist in the database"));
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        if (result.hasErrors()) {
+            List<String> errors = result.getFieldErrors()
+                    .stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+
+            response.put("message", errors);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
-        if (client.getCellphoneNumber() == 0 || client.getDni() == 0) {
-            response.put("message", "The client data provided doesn't match those requested");
+        if (clientSaved == null) {
+            response.put("message", "The client id ".concat(id.toString()).concat(" doesn't exist in the database"));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
