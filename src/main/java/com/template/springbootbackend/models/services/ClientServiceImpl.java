@@ -3,6 +3,8 @@ package com.template.springbootbackend.models.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.template.springbootbackend.models.dao.ClientDaoRepository;
@@ -33,5 +35,8 @@ public class ClientServiceImpl implements ClientService {
         clientDaoRepository.deleteById(id);
     }
 
-    
+    @Override
+    public Page<Client> findAll(Pageable pageable) {
+        return clientDaoRepository.findAll(pageable);
+    }
 }
