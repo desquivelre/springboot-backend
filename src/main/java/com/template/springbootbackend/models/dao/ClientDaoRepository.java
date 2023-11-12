@@ -1,4 +1,4 @@
-package com.template.springbootbackend.repositories;
+package com.template.springbootbackend.models.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

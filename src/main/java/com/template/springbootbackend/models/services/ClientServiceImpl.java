@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.template.springbootbackend.models.dao.ClientDaoRepository;
 import com.template.springbootbackend.models.entities.Client;
-import com.template.springbootbackend.repositories.ClientDaoRepository;
 
 @Service
 public class ClientServiceImpl implements ClientService {
