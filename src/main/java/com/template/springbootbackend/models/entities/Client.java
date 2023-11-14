@@ -49,6 +49,9 @@ public class Client {
     @Min(100000000)
     private Integer cellphoneNumber;
 
+    @Column(name = "photo")
+    private String photo;
+
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.DATE)
     private LocalDate createdAt;
@@ -130,4 +133,11 @@ public class Client {
         this.modificatedAt = modificatedAt;
     }
 
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
 }

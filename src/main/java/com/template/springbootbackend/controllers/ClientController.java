@@ -1,15 +1,25 @@
 package com.template.springbootbackend.controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -21,7 +31,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.template.springbootbackend.models.entities.Client;
 import com.template.springbootbackend.models.services.ClientService;
@@ -144,6 +156,7 @@ public class ClientController {
         }
 
         try {
+            deleteClientPreviousPhotoFromServer(clientDeleted);
             clientService.deleteById(id);
         } catch (DataAccessException e) {
             response.put("message", e.getMessage());
@@ -152,5 +165,86 @@ public class ClientController {
 
         response.put("message", "The client has been deleted successfully");
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/clients/upload")
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("id") Long id) {
+        Map<String, Object> response = new HashMap<>();
+        Client client = clientService.findById(id);
+
+        if (client == null) {
+            response.put("message", "The client id ".concat(id.toString()).concat(" doesn't exist in the database"));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+
+        if (!file.isEmpty()) {
+            String fileName = UUID.randomUUID().toString();
+
+            if (!fileName.endsWith(".png") || !fileName.endsWith(".jpg") || !fileName.endsWith(".jpeg")){
+                fileName += ".png";
+            }
+        
+            Path filePath = Paths.get("C:/Users/User/OneDrive/Diego PC - Oficina/Documentos/develop")
+                    .resolve(fileName)
+                    .toAbsolutePath();
+
+            try {
+                Files.copy(file.getInputStream(), filePath);
+            } catch (IOException e) {
+                response.put("message", "The photo didn't upload successfully");
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            deleteClientPreviousPhotoFromServer(client);
+
+            client.setPhoto(fileName);
+            clientService.save(client);
+
+            response.put("client", client);
+            response.put("message", "The photo: " + fileName + " has been uploaded successfully");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        }
+
+        response.put("message", "The file is empty");
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+    }
+
+    public void deleteClientPreviousPhotoFromServer(Client client) {
+        String fileNameBefore = client.getPhoto();
+
+        if (fileNameBefore != null && fileNameBefore.length() > 0) {
+            Path filePathBefore = Paths.get("C:/Users/User/OneDrive/Diego PC - Oficina/Documentos/develop")
+                    .resolve(fileNameBefore)
+                    .toAbsolutePath();
+
+            File fileBefore = filePathBefore.toFile();
+
+            if (fileBefore.exists() && fileBefore.canRead()) {
+                fileBefore.delete();
+            }
+        }
+    }
+
+    @GetMapping(value = "/uploads/img/{fileName:.+}")
+    public ResponseEntity<Resource> showClientPhoto(@PathVariable String fileName) {
+        Path filePath = Paths.get("C:/Users/User/OneDrive/Diego PC - Oficina/Documentos/develop")
+                .resolve(fileName)
+                .toAbsolutePath();
+        Resource resource = null;
+
+        try {
+            resource = new UrlResource(filePath.toUri());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        if (!resource.exists() && !resource.isReadable()) {
+            throw new RuntimeException("The photo " + fileName + " couldn't be loaded");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
+
+        return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
     }
 }
