@@ -36,7 +36,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.template.springbootbackend.models.entities.Client;
+import com.template.springbootbackend.models.entities.Region;
 import com.template.springbootbackend.models.services.ClientService;
+import com.template.springbootbackend.models.services.RegionService;
 
 import jakarta.validation.Valid;
 
@@ -46,6 +48,9 @@ import jakarta.validation.Valid;
 public class ClientController {
     @Autowired
     private ClientService clientService;
+
+    @Autowired
+    private RegionService regionService;
 
     @GetMapping("/clients")
     public List<Client> getClients() {
@@ -246,5 +251,10 @@ public class ClientController {
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
 
         return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/clients/regions")
+    public List<Region> getClientsRegions() {
+        return regionService.findAll();
     }
 }
